@@ -7,12 +7,14 @@ import * as authService from "../services/auth.service.js";
  * delega la lógica de negocio a los servicios
  */
 export async function register(req, res) {
+  console.log("Intento de registro recibido:", req.body);
   try {
     const user = await authService.register(req.body);
     res
       .status(201)
       .json({ success: true, message: "Usuario registrado exitosamente" });
   } catch (error) {
+    console.error("--- ERROR EN EL REGISTRO ---", error);
     res.status(400).json({ success: false, error: error.message });
   }
 }
