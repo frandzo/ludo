@@ -1,12 +1,15 @@
+// backend/src/routes/index.js
+
 import express from "express";
-import usuariosRouter from "./usuarios.js";
+import authRouter from "./auth.routes.js";
 // import estudiantesRouter from "./estudiantes.js";
-// import logrosRouter from "./logros.js";
 
 const router = express.Router();
 
-router.use("/usuarios", usuariosRouter);
+/*
+ * enrutador principal que agrupa todas las rutas de la api
+ */
+router.use("/auth", authRouter);
 // router.use("/estudiantes", estudiantesRouter);
-// router.use("/logros", logrosRouter);
 
 export default router;
