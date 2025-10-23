@@ -1164,7 +1164,7 @@ GameObject:
   - component: {fileID: 1114821341}
   - component: {fileID: 1114821340}
   m_Layer: 5
-  m_Name: AnswerButton_2 (2)
+  m_Name: AnswerButton_4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1593,7 +1593,7 @@ MonoBehaviour:
   - {fileID: 1950712142}
   - {fileID: 764971402}
   - {fileID: 686712731}
-  - {fileID: 0}
+  - {fileID: 1114821340}
   scoreText: {fileID: 661223668}
   timerText: {fileID: 1314155643}
   totalQuestions: 4
