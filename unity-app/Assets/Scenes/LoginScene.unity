@@ -565,7 +565,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: bdebf0a7b5667b4419b25546408ed922, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  emailInput: {fileID: 0}
+  emailInput: {fileID: 1121150834}
   warningText: {fileID: 0}
 --- !u!4 &830010081
 Transform:
