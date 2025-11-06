@@ -34,16 +34,16 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+    <nav className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
         <Link
           to="/"
           className="flex items-center gap-2 hover:opacity-80 transition-opacity"
         >
           <div className="h-10 w-10 rounded-lg bg-gradient-hero flex items-center justify-center shadow-playful">
-            <Gamepad2 className="h-6 w-6 text-white" />
+            <Gamepad2 className="h-6 w-6 text-primary" />
           </div>
-          <span className="text-xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
+          <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
             Ludodidactas
           </span>
         </Link>

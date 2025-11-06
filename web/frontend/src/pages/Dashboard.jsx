@@ -37,15 +37,59 @@ export default function Dashboard() {
     },
   ];
 
+  const recentGames = [
+    {
+      name: "Matemáticas Mágicas",
+      score: 950,
+      date: "Hoy",
+      category: "Matemáticas",
+    },
+    {
+      name: "Laboratorio Virtual",
+      score: 880,
+      date: "Ayer",
+      category: "Ciencias",
+    },
+    {
+      name: "Aventura Lingüística",
+      score: 920,
+      date: "Hace 2 días",
+      category: "Lenguaje",
+    },
+  ];
+
+  const achievements = [
+    {
+      name: "Primera Victoria",
+      description: "Completa tu primer juego",
+      unlocked: true,
+    },
+    {
+      name: "Estudiante Dedicado",
+      description: "Juega 5 días seguidos",
+      unlocked: true,
+    },
+    {
+      name: "Maestro Matemático",
+      description: "Completa 10 juegos de matemáticas",
+      unlocked: false,
+    },
+    {
+      name: "Científico Estrella",
+      description: "Obtén puntuación perfecta en ciencias",
+      unlocked: false,
+    },
+  ];
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 bg-linear-to-br from-primary/5 via-accent/5 to-secondary/5">
+      <main className="flex-1 bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5">
         <div className="container py-12">
           <div className="mb-8 animate-slide-up">
             <h1 className="text-4xl font-extrabold mb-2">
               ¡Hola,{" "}
-              <span className="bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 {user?.nombre}
               </span>
               !
@@ -63,7 +107,7 @@ export default function Dashboard() {
               >
                 <div className="flex items-center gap-4">
                   <div
-                    className={`h-12 w-12 rounded-xl bg-linear-to-br from-primary/10 to-accent/10 flex items-center justify-center ${stat.color}`}
+                    className={`h-12 w-12 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center ${stat.color}`}
                   >
                     <stat.icon className="h-6 w-6" />
                   </div>
@@ -97,8 +141,90 @@ export default function Dashboard() {
                   ¡Solo 250 puntos más para subir de nivel!
                 </p>
               </Card>
+              <Card
+                className="p-6 shadow-playful animate-slide-up"
+                style={{ animationDelay: "0.3s" }}
+              >
+                <h3 className="text-xl font-bold mb-4">Juegos recientes</h3>
+                <div className="space-y-4">
+                  {recentGames.map((game, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-4 rounded-xl bg-muted/50 hover:bg-muted/70 transition-colors"
+                    >
+                      <div className="flex-1">
+                        <div className="font-semibold">{game.name}</div>
+                        <div className="text-sm text-muted-foreground">
+                          {game.category} • {game.date}
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="text-xl font-bold text-primary">
+                          {game.score}
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          puntos
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <Button variant="outline" className="w-full mt-4">
+                  Ver historial completo
+                </Button>
+              </Card>
             </div>
             <div className="space-y-6">
+              <Card
+                className="p-6 shadow-playful animate-slide-up"
+                style={{ animationDelay: "0.4s" }}
+              >
+                <div className="flex items-center gap-2 mb-4">
+                  <Award className="h-5 w-5 text-secondary" />
+                  <h3 className="text-xl font-bold">Logros</h3>
+                </div>
+                <div className="space-y-3">
+                  {achievements.map((achievement, index) => (
+                    <div
+                      key={index}
+                      className={`p-4 rounded-xl border-2 transition-all ${
+                        achievement.unlocked
+                          ? "bg-primary/5 border-primary"
+                          : "bg-muted/30 border-muted opacity-60"
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        <div
+                          className={`h-10 w-10 rounded-lg flex items-center justify-center flex-shrink-0 ${
+                            achievement.unlocked
+                              ? "bg-gradient-hero"
+                              : "bg-muted"
+                          }`}
+                        >
+                          <Trophy
+                            className={`h-5 w-5 ${
+                              achievement.unlocked
+                                ? "text-white"
+                                : "text-muted-foreground"
+                            }`}
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-semibold text-sm">
+                            {achievement.name}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {achievement.description}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <Button variant="ghost" className="w-full mt-4">
+                  Ver todos los logros
+                </Button>
+              </Card>
               <Card
                 className="p-6 shadow-playful bg-gradient-playful animate-slide-up"
                 style={{ animationDelay: "0.4s" }}

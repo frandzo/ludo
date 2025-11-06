@@ -49,7 +49,7 @@ export default function HowItWorks() {
               style={{ animationDelay: `${index * 0.1}s` }}
             >
               {index < steps.length - 1 && (
-                <div className="hidden md:block absolute top-16 left-[60%] w-[80%] h-0.5 bg-linear-to-r from-border to-transparent"></div>
+                <div className="hidden md:block absolute top-16 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-border to-transparent"></div>
               )}
               <div className="relative bg-card rounded-2xl p-8 shadow-playful hover:shadow-playful-lg transition-all hover:scale-105 text-center">
                 <div
