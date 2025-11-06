@@ -1,27 +1,35 @@
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import { useState } from 'react';
-import RegisterForm from './components/RegisterForm';
-import LoginForm from './components/LoginForm';
-import UserProfile from './components/UserProfile';
+import { useState } from 'react'
+import reactLogo from './assets/react.svg'
+import viteLogo from '/vite.svg'
+import './App.css'
 
-export default function App() {
-  const [loggedUser, setLoggedUser] = useState(null);
+function App() {
+  const [count, setCount] = useState(0)
 
   return (
-    <Router>
-      <nav className="p-4 bg-gray-200 flex justify-center space-x-4">
-        <Link to="/">Inicio</Link>
-        {!loggedUser && <Link to="/login">Login</Link>}
-        {!loggedUser && <Link to="/register">Registro</Link>}
-        {loggedUser && <Link to="/perfil">Perfil</Link>}
-      </nav>
-
-      <Routes>
-        <Route path="/" element={<h1 className="text-center text-2xl mt-10">Bienvenido a la App 👋</h1>} />
-        <Route path="/register" element={<RegisterForm />} />
-        <Route path="/login" element={<LoginForm onLogin={setLoggedUser} />} />
-        <Route path="/perfil" element={<UserProfile onLogout={() => setLoggedUser(null)} />} />
-      </Routes>
-    </Router>
-  );
+    <>
+      <div>
+        <a href="https://vite.dev" target="_blank">
+          <img src={viteLogo} className="logo" alt="Vite logo" />
+        </a>
+        <a href="https://react.dev" target="_blank">
+          <img src={reactLogo} className="logo react" alt="React logo" />
+        </a>
+      </div>
+      <h1>Vite + React</h1>
+      <div className="card">
+        <button onClick={() => setCount((count) => count + 1)}>
+          count is {count}
+        </button>
+        <p>
+          Edit <code>src/App.jsx</code> and save to test HMR
+        </p>
+      </div>
+      <p className="read-the-docs">
+        Click on the Vite and React logos to learn more
+      </p>
+    </>
+  )
 }
+
+export default App
