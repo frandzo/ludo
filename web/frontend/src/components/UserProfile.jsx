@@ -18,8 +18,8 @@ export default function UserProfile({ onLogout }) {
       <h2 className="text-xl font-bold mb-2">Perfil</h2>
       {user ? (
         <>
-          <p><strong>ID:</strong> {user.idusuario}</p>
-          <p><strong>Rol:</strong> {user.rol}</p>
+          <p><strong>ID:</strong> {user.id}</p>
+          <p><strong>Rol:</strong> {user.idrol}</p>
           <p><strong>Email:</strong> {user.email}</p>
           <button onClick={() => { localStorage.removeItem('token'); onLogout(); }} className="bg-red-500 text-white mt-4 px-4 py-2 rounded">
             Cerrar Sesión

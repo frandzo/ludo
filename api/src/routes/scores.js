@@ -5,7 +5,8 @@ import db from "../config/db.js"; // tu conexión (mysql2 createConnection)
 const router = express.Router();
 
 router.post("/", async (req, res) => {
-  const { email, idjuego, puntaje } = req.body;
+  const { idjuego, puntaje } = req.body;
+  const email = req.user.email;
 
   if (!email || !idjuego || puntaje == null) {
     return res.status(400).json({ error: "Faltan datos", body: req.body });
