@@ -1,0 +1,27 @@
+# archivos de sistema operativo
+.DS_Store
+Thumbs.db
+
+# archivos de configuración de editores
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# logs y archivos de dependencias
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# archivos de entorno
+.env
+.env.*
+!.env.example
+
+# carpetas de dependencias
+node_modules/
+
+# carpetas de build/distribución
+dist/
+build/
