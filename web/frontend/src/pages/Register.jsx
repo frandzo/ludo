@@ -1,10 +1,11 @@
 // web/frontend/src/pages/Register.jsx
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { UserPlus, Eye, EyeOff, AlertCircle, ArrowLeft } from "lucide-react";
+import { UserPlus, ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/context/AuthContext";
 import api from "@/utils/api";
@@ -18,7 +19,7 @@ import {
 
 export default function Register() {
   const navigate = useNavigate();
-  const { user, isAdmin, isTeacher } = useAuth();
+  const { /* user, */ isAdmin, isTeacher } = useAuth();
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
     nombre: "",
@@ -68,7 +69,7 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-primary/5 via-accent/5 to-secondary/5 p-4">
       <Card className="w-full max-w-md p-8 shadow-playful-lg animate-bounce-in">
         <Button
           variant="ghost"

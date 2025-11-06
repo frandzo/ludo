@@ -7,7 +7,7 @@ import { Sparkles, PlayCircle } from "lucide-react";
 export default function Hero() {
   return (
     <section className="relative overflow-hidden py-20 md:py-32">
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5"></div>
+      <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-accent/5 to-secondary/5"></div>
       <div className="absolute top-20 left-10 h-32 w-32 rounded-full bg-primary/10 blur-3xl animate-float"></div>
       <div
         className="absolute bottom-20 right-10 h-40 w-40 rounded-full bg-accent/10 blur-3xl animate-float"
@@ -23,7 +23,7 @@ export default function Hero() {
             </div>
             <h1 className="text-4xl md:text-6xl font-extrabold leading-tight">
               Aprender jugando{" "}
-              <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
                 nunca fue tan fácil
               </span>
             </h1>

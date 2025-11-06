@@ -13,7 +13,7 @@ export default function Footer() {
               <div className="h-10 w-10 rounded-lg bg-gradient-hero flex items-center justify-center shadow-playful">
                 <BookOpen className="h-6 w-6 text-white" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              <span className="text-xl font-bold bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
                 Ludodidactas
               </span>
             </Link>

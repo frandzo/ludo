@@ -28,16 +28,14 @@ export default function Contact() {
     e.preventDefault();
     setLoading(true);
     try {
-      // TODO: Conectar con el endpoint /api/contacto cuando esté disponible en el backend.
-      // Por ahora, simulamos una llamada a la API.
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
       toast.success("¡Mensaje enviado!", {
         description: "Gracias por contactarnos. Te responderemos pronto.",
       });
 
-      // Limpiar el formulario después del envío exitoso
       setForm({ nombre: "", email: "", asunto: "", mensaje: "" });
+      // eslint-disable-next-line no-unused-vars
     } catch (error) {
       toast.error("Error al enviar", {
         description:
@@ -51,12 +49,12 @@ export default function Contact() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5">
+      <main className="flex-1 bg-linear-to-br from-primary/5 via-accent/5 to-secondary/5">
         <div className="container py-12">
           <div className="max-w-4xl mx-auto">
             <div className="mb-8 text-center animate-slide-up">
               <h1 className="text-4xl font-extrabold mb-2">
-                <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                <span className="bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
                   Contacto
                 </span>
               </h1>
@@ -67,7 +65,6 @@ export default function Contact() {
             </div>
 
             <div className="grid md:grid-cols-2 gap-8">
-              {/* Columna del Formulario */}
               <Card className="p-8 shadow-playful animate-slide-up">
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
@@ -159,14 +156,13 @@ export default function Contact() {
                 </form>
               </Card>
 
-              {/* Columna de Información */}
               <div
                 className="space-y-6 animate-slide-up"
                 style={{ animationDelay: "0.1s" }}
               >
                 <Card className="p-8 shadow-playful">
                   <div className="flex items-start gap-4">
-                    <div className="h-12 w-12 rounded-xl bg-gradient-hero flex items-center justify-center flex-shrink-0">
+                    <div className="h-12 w-12 rounded-xl bg-gradient-hero flex items-center justify-center shrink-0">
                       <Mail className="h-6 w-6 text-white" />
                     </div>
                     <div>
@@ -183,7 +179,7 @@ export default function Contact() {
 
                 <Card className="p-8 shadow-playful">
                   <div className="flex items-start gap-4">
-                    <div className="h-12 w-12 rounded-xl bg-gradient-playful flex items-center justify-center flex-shrink-0">
+                    <div className="h-12 w-12 rounded-xl bg-gradient-playful flex items-center justify-center shrink-0">
                       <MessageSquare className="h-6 w-6 text-foreground" />
                     </div>
                     <div>

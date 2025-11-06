@@ -47,7 +47,7 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary/10 via-accent/10 to-secondary/10 p-4">
+    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-primary/10 via-accent/10 to-secondary/10 p-4">
       <div className="w-full max-w-md">
         <Button variant="ghost" size="sm" asChild className="mb-8">
           <Link to="/">

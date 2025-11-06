@@ -55,11 +55,11 @@ export default function Games() {
     <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="flex-1">
-        <section className="bg-gradient-to-br from-primary/10 via-accent/10 to-secondary/10 py-16">
+        <section className="bg-linear-to-br from-primary/10 via-accent/10 to-secondary/10 py-16">
           <div className="container">
             <h1 className="text-4xl md:text-6xl font-extrabold mb-4 animate-slide-up">
               Catálogo de{" "}
-              <span className="bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
                 Juegos
               </span>
             </h1>

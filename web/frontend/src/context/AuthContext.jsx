@@ -15,7 +15,6 @@ export function AuthProvider({ children }) {
     if (token && storedUser) {
       try {
         setUser(JSON.parse(storedUser));
-      // eslint-disable-next-line no-unused-vars
       } catch (error) {
         localStorage.removeItem("token");
         localStorage.removeItem("user");
@@ -52,7 +51,6 @@ export function AuthProvider({ children }) {
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {

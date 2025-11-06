@@ -40,12 +40,12 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
-      <main className="flex-1 bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5">
+      <main className="flex-1 bg-linear-to-br from-primary/5 via-accent/5 to-secondary/5">
         <div className="container py-12">
           <div className="mb-8 animate-slide-up">
             <h1 className="text-4xl font-extrabold mb-2">
               ¡Hola,{" "}
-              <span className="bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-primary to-accent bg-clip-text text-transparent">
                 {user?.nombre}
               </span>
               !
@@ -63,7 +63,7 @@ export default function Dashboard() {
               >
                 <div className="flex items-center gap-4">
                   <div
-                    className={`h-12 w-12 rounded-xl bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center ${stat.color}`}
+                    className={`h-12 w-12 rounded-xl bg-linear-to-br from-primary/10 to-accent/10 flex items-center justify-center ${stat.color}`}
                   >
                     <stat.icon className="h-6 w-6" />
                   </div>

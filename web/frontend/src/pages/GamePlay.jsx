@@ -5,16 +5,16 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Trophy, Star, Target } from "lucide-react";
-import { useAuth } from "@/context/AuthContext";
+/* import { useAuth } from "@/context/AuthContext"; */
 import api from "@/utils/api";
 
 export default function GamePlay() {
   const { gameId } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  /* const { user } = useAuth(); */
   const [game, setGame] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [currentScore, setCurrentScore] = useState(0);
+  const [currentScore, /* setCurrentScore */] = useState(0);
 
   useEffect(() => {
     const loadGame = async () => {
@@ -24,7 +24,7 @@ export default function GamePlay() {
         setGame(response.data);
       } catch (error) {
         console.error("Error loading game:", error);
-        navigate("/juegos"); // Redirige si el juego no se encuentra
+        navigate("/juegos");
       } finally {
         setLoading(false);
       }
@@ -32,7 +32,7 @@ export default function GamePlay() {
     loadGame();
   }, [gameId, navigate]);
 
-  const handleGameCompleted = async (finalScore) => {
+  /* const handleGameCompleted = async (finalScore) => {
     try {
       await api.post("/api/juegos/completar", {
         juegoId: gameId,
@@ -44,7 +44,7 @@ export default function GamePlay() {
     } catch (error) {
       console.error("Error saving game result:", error);
     }
-  };
+  }; */
 
   if (loading) {
     return (
@@ -55,7 +55,7 @@ export default function GamePlay() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5">
+    <div className="min-h-screen bg-linear-to-br from-primary/5 via-accent/5 to-secondary/5">
       <div className="bg-background border-b">
         <div className="container py-4 flex items-center justify-between">
           <Button variant="ghost" onClick={() => navigate("/juegos")}>

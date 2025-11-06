@@ -6,10 +6,10 @@ import { Home, Search } from "lucide-react";
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-primary/10 via-accent/10 to-secondary/10 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-linear-to-br from-primary/10 via-accent/10 to-secondary/10 p-4">
       <div className="text-center max-w-md space-y-6 animate-bounce-in">
         <div className="relative">
-          <h1 className="text-9xl font-extrabold bg-gradient-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
+          <h1 className="text-9xl font-extrabold bg-linear-to-r from-primary via-accent to-secondary bg-clip-text text-transparent">
             404
           </h1>
           <div className="absolute inset-0 blur-3xl opacity-20 bg-gradient-hero"></div>
