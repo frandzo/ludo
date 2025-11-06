@@ -1,16 +1,21 @@
-// config/db.js
-import mysql from "mysql2/promise";
+import mysql from "mysql2";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-export const db = await mysql.createConnection({
+const getConnection = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
 });
 
-console.log("✅ Conexión a la base de datos establecida correctamente");
+getConnection.connect((err) => {
+  if (err) {
+    console.error("❌ Error al conectar con la base de datos:", err);
+  } else {
+    console.log("✅ Conectado a la base de datos MySQL");
+  }
+});
 
-export default db;
+export default getConnection;
