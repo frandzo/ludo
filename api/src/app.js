@@ -1,5 +1,3 @@
-// api/src/app.js
-
 import express from "express";
 import routes from "./routes/index.js";
 import dotenv from "dotenv";
@@ -8,17 +6,15 @@ import authRoutes from "./routes/auth.routes.js";
 import { verificarToken } from "./middlewares/auth.middleware.js";
 
 dotenv.config();
-
+console.log("process.env.DB_USER:", process.env.DB_USER);  
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-app.use("/auth", authRoutes);
-app.use("/api", verificarToken, routes);
-
-app.get("/api/perfil", verificarToken, (req, res) => {
-  res.json({ message: `Bienvenido ${req.user.nombre}`, user: req.user });
+app.use("/api", routes);
+app.use('/auth', authRoutes);
+app.get('/perfil', verificarToken, (req, res) => {
+  res.json({ message: `Bienvenido ${req.user.email}`, user: req.user });
 });
-
 export default app;

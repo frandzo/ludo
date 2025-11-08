@@ -1,75 +1,27 @@
-// web/frontend/src/App.jsx
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { useState } from 'react';
+import RegisterForm from './components/RegisterForm';
+import LoginForm from './components/LoginForm';
+import UserProfile from './components/UserProfile';
 
-import { Toaster } from "@/components/ui/sonner";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { AuthProvider } from "./context/AuthContext";
-import ProtectedRoute from "./components/ProtectedRoute";
-import Home from "./pages/Home";
-import Games from "./pages/Games";
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
-import TeacherDashboard from "./pages/TeacherDashboard";
-import Ranking from "./pages/Ranking";
-import Contact from "./pages/Contact";
-import GamePlay from "./pages/GamePlay";
-import NotFound from "./pages/NotFound";
+export default function App() {
+  const [loggedUser, setLoggedUser] = useState(null);
 
-const queryClient = new QueryClient();
-
-function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <Toaster />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/juegos" element={<Games />} />
-            <Route path="/ranking" element={<Ranking />} />
-            <Route path="/contacto" element={<Contact />} />
-            <Route path="/login" element={<Login />} />
-            <Route
-              path="/registro"
-              element={
-                <ProtectedRoute allowedRoles={["admin", "docente"]}>
-                  <Register />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dashboard"
-              element={
-                <ProtectedRoute
-                  allowedRoles={["estudiante", "admin", "docente"]}
-                >
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/dashboard/docente"
-              element={
-                <ProtectedRoute allowedRoles={["docente", "admin"]}>
-                  <TeacherDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/jugar/:gameId"
-              element={
-                <ProtectedRoute>
-                  <GamePlay />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
-    </QueryClientProvider>
+    <Router>
+      <nav className="p-4 bg-gray-200 flex justify-center space-x-4">
+        <Link to="/">Inicio</Link>
+        {!loggedUser && <Link to="/login">Login</Link>}
+        {!loggedUser && <Link to="/register">Registro</Link>}
+        {loggedUser && <Link to="/perfil">Perfil</Link>}
+      </nav>
+
+      <Routes>
+        <Route path="/" element={<h1 className="text-center text-2xl mt-10">Bienvenido a la App 👋</h1>} />
+        <Route path="/register" element={<RegisterForm />} />
+        <Route path="/login" element={<LoginForm onLogin={setLoggedUser} />} />
+        <Route path="/perfil" element={<UserProfile onLogout={() => setLoggedUser(null)} />} />
+      </Routes>
+    </Router>
   );
 }
-
-export default App;

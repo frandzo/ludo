@@ -1,5 +1,3 @@
-// api/src/routes/index.js
-
 import express from "express";
 import puntajesRoutes  from "./scores.js";
 import usuariosRouter from "./usuarios.js";

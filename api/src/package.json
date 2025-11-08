@@ -4,7 +4,6 @@
   "description": "",
   "type": "module",
   "main": "index.js",
-  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon server.js"
@@ -22,6 +21,6 @@
     "mysql2": "^3.15.2"
   },
   "devDependencies": {
-    "nodemon": "^3.10.10"
+    "nodemon": "^3.1.10"
   }
 }
