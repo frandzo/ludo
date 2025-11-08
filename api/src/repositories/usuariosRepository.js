@@ -21,7 +21,7 @@ export async function findByEmail(email) {
 export async function create(data) {
   const db = await getConnection();
   const [result] = await db.query("INSERT INTO usuarios SET ?", [data]);
-  return { id: result.insertId, ...data };
+  return { id: result.insertId, nombre: data.nombre, email: data.email, idrol: data.idrol};
 }
 
 export async function update(id, data) {

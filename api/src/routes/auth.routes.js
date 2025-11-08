@@ -17,6 +17,7 @@ router.post("/register", async (req, res) => {
   }
 
   try {
+    const db = await getConnection();
     const [existing] = await db.query("SELECT * FROM usuarios WHERE email = ?", [email]);
     if (existing.length > 0) {
       return res.status(400).json({ error: "El email ya está registrado" });
@@ -38,6 +39,9 @@ router.post("/register", async (req, res) => {
 
 // 📌 Login de usuario
 router.post("/login", async (req, res) => {
+
+  // TO-DO: validar inputs
+
   const { email, password } = req.body;
 
   if (!email || !password) {
@@ -45,6 +49,7 @@ router.post("/login", async (req, res) => {
   }
 
   try {
+    const db = await getConnection();
     const [rows] = await db.query("SELECT * FROM usuarios WHERE email = ?", [email]);
     if (rows.length === 0) {
       return res.status(404).json({ error: "Usuario no encontrado" });
@@ -59,7 +64,7 @@ router.post("/login", async (req, res) => {
 
     // 🔸 Crear token JWT (1 hora de duración)
     const token = jwt.sign(
-      { id: user.id, email: user.email, nombre: user.nombre },
+      { id: user.id, email: user.email, nombre: user.nombre, idrol:user.idrol},
       process.env.JWT_SECRET,
       { expiresIn: "1h" }
     );
