@@ -1,10 +1,11 @@
+// api/src/controllers/usuariosController.js
+
 import * as usuariosService from "../services/usuariosService.js";
 
 export async function getAllUsuarios(req, res) {
   try {
     const data = await usuariosService.getAll();
     res.json(data);
-    // res.send("TEST USUARIOS");
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -13,7 +14,11 @@ export async function getAllUsuarios(req, res) {
 export async function getUsuarioById(req, res) {
   try {
     const usuario = await usuariosService.getById(req.params.id);
-    res.json(usuario);
+    if (usuario) {
+      res.json(usuario);
+    } else {
+      res.status(404).json({ error: "Usuario no encontrado" });
+    }
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -43,14 +48,5 @@ export async function deleteUsuario(req, res) {
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
-  }
-}
-
-export async function loginUsuario(req, res) {
-  try {
-    const token = await usuariosService.login(req.body);
-    res.json({ token });
-  } catch (error) {
-    res.status(401).json({ error: error.message });
   }
 }

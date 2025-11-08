@@ -1,11 +1,8 @@
-import express from 'express';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
-import {getConnection} from "../database/connection.js";  // tu conexión MySQL
-import dotenv from 'dotenv';
-import db from "../config/db.js";
+// api/src/routes/auth.routes.js
 
-dotenv.config();
+import express from "express";
+import * as authController from "../controllers/authController.js";
+
 const router = express.Router();
 
 // 📌 Registro de usuario
