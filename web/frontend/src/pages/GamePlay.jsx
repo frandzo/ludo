@@ -1,21 +1,54 @@
 // web/frontend/src/pages/GamePlay.jsx
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Trophy, Star, Target } from "lucide-react";
-/* import { useAuth } from "@/context/AuthContext"; */
+import { ArrowLeft, Star, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import api from "@/utils/api";
 
 export default function GamePlay() {
   const { gameId } = useParams();
   const navigate = useNavigate();
-  /* const { user } = useAuth(); */
   const [game, setGame] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [currentScore, /* setCurrentScore */] = useState(0);
+  const [currentScore, setCurrentScore] = useState(0);
 
+  // función para guardar el progreso del juego (es llamada desde Unity)
+  const handleGameCompleted = React.useCallback(
+    async (finalScore) => {
+      try {
+        await api.post("/api/juegos/completar", {
+          juegoId: gameId,
+          puntaje: Number(finalScore),
+        });
+        toast.success("¡Juego completado!", {
+          description: `Obtuviste ${finalScore} puntos. Tu progreso ha sido guardado.`,
+        });
+        // Redirigir al dashboard después de un breve momento
+        setTimeout(() => navigate("/dashboard"), 1500);
+      } catch (error) {
+        toast.error("Error al guardar", {
+          description:
+            "No se pudo guardar tu progreso. Por favor, intenta de nuevo.",
+        });
+        console.error("Error saving game result:", error);
+      }
+    },
+    [gameId, navigate]
+  );
+
+  // exponer la función de completar al objeto window para que Unity pueda llamarla
+  useEffect(() => {
+    window.handleGameCompleted = handleGameCompleted;
+
+    return () => {
+      delete window.handleGameCompleted;
+    };
+  }, [handleGameCompleted]);
+
+  // cargar datos del juego al componente
   useEffect(() => {
     const loadGame = async () => {
       setLoading(true);
@@ -24,6 +57,9 @@ export default function GamePlay() {
         setGame(response.data);
       } catch (error) {
         console.error("Error loading game:", error);
+        toast.error("Juego no encontrado", {
+          description: "No pudimos cargar los detalles de este juego.",
+        });
         navigate("/juegos");
       } finally {
         setLoading(false);
@@ -32,24 +68,11 @@ export default function GamePlay() {
     loadGame();
   }, [gameId, navigate]);
 
-  /* const handleGameCompleted = async (finalScore) => {
-    try {
-      await api.post("/api/juegos/completar", {
-        juegoId: gameId,
-        puntaje: finalScore,
-      });
-      navigate("/dashboard", {
-        state: { message: `¡Juego completado! Obtuviste ${finalScore} puntos` },
-      });
-    } catch (error) {
-      console.error("Error saving game result:", error);
-    }
-  }; */
-
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        <span className="ml-4 text-lg">Cargando el juego...</span>
       </div>
     );
   }
@@ -74,18 +97,20 @@ export default function GamePlay() {
       </div>
 
       <div className="container py-8">
-        <div className="lg:col-span-3">
-          <Card className="p-0 overflow-hidden shadow-playful-lg">
-            <div className="aspect-video bg-muted flex items-center justify-center relative">
+        <Card className="p-0 overflow-hidden shadow-playful-lg">
+          <div className="aspect-video bg-muted flex items-center justify-center relative">
+            {game?.unityUrl ? (
               <iframe
-                src={game?.unityUrl}
+                src={game.unityUrl}
                 className="w-full h-full absolute inset-0 border-0"
-                title={game?.titulo}
+                title={game.titulo}
                 allow="autoplay; fullscreen"
               />
-            </div>
-          </Card>
-        </div>
+            ) : (
+              <p>No se encontró la URL del juego.</p>
+            )}
+          </div>
+        </Card>
       </div>
     </div>
   );
