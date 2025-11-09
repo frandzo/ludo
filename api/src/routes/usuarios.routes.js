@@ -11,6 +11,7 @@ router.get("/:id", usuariosController.getUsuarioById);
 router.post("/", usuariosController.createUsuario); // esta es usada por el admin/docente
 router.put("/:id", usuariosController.updateUsuario);
 router.delete("/:id", usuariosController.deleteUsuario);
+router.get("/:id/progreso", usuariosController.getProgresoByUsuarioId);
 
 // la ruta de login se movió a auth.routes.js para ser pública
 // router.post("/login", usuariosController.loginUsuario);
