@@ -25,8 +25,8 @@ export async function getJuegoById(req, res) {
 }
 
 export async function completarJuego(req, res) {
-  const { juegoId, puntaje, tiempoJugado } = req.body;
-  const userId = req.user.id; // obtenido del token JWT
+  const { juegoId, puntaje } = req.body;
+  const userId = req.user.id; // obtenido del token JWT a través del middleware
 
   if (!juegoId || puntaje === undefined) {
     return res.status(400).json({ error: "juegoId y puntaje son requeridos" });
@@ -37,7 +37,7 @@ export async function completarJuego(req, res) {
       userId,
       juegoId,
       puntaje,
-      tiempoJugado || 0
+      0 // TODO: implementar el tiempo jugado
     );
     console.log(
       `Usuario ${userId} completó juego ${juegoId} con puntaje ${puntaje}`
