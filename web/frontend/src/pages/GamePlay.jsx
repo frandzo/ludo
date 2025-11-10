@@ -1,84 +1,114 @@
 // web/frontend/src/pages/GamePlay.jsx
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, Star, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/utils/api";
+import { useAuth } from "@/context/AuthContext";
 
 export default function GamePlay() {
   const { gameId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [game, setGame] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [currentScore, setCurrentScore] = useState(0);
+  const [unityInstance, setUnityInstance] = useState(null);
 
-  // función para guardar el progreso del juego (es llamada desde Unity)
-  const handleGameCompleted = React.useCallback(
-    async (finalScore) => {
-      try {
-        await api.post("/api/juegos/completar", {
-          juegoId: gameId,
-          puntaje: Number(finalScore),
-        });
-        toast.success("¡Juego completado!", {
-          description: `Obtuviste ${finalScore} puntos. Tu progreso ha sido guardado.`,
-        });
-        // Redirigir al dashboard después de un breve momento
-        setTimeout(() => navigate("/dashboard"), 1500);
-      } catch (error) {
-        toast.error("Error al guardar", {
-          description:
-            "No se pudo guardar tu progreso. Por favor, intenta de nuevo.",
-        });
-        console.error("Error saving game result:", error);
-      }
+  const handleGameCompleted = useCallback(
+    (finalScore) => {
+      toast.success("¡Juego completado!", {
+        description: `Obtuviste ${finalScore} puntos. Tu progreso ha sido guardado.`,
+      });
+      setTimeout(() => navigate("/dashboard"), 1500);
     },
-    [gameId, navigate]
+    [navigate]
   );
 
-  // exponer la función de completar al objeto window para que Unity pueda llamarla
   useEffect(() => {
     window.handleGameCompleted = handleGameCompleted;
-
     return () => {
       delete window.handleGameCompleted;
     };
   }, [handleGameCompleted]);
 
-  // cargar datos del juego al componente
   useEffect(() => {
-    const loadGame = async () => {
-      setLoading(true);
+    const loadGameDetails = async () => {
       try {
         const response = await api.get(`/api/juegos/${gameId}`);
         setGame(response.data);
       } catch (error) {
-        console.error("Error loading game:", error);
-        toast.error("Juego no encontrado", {
-          description: "No pudimos cargar los detalles de este juego.",
-        });
+        toast.error("Juego no encontrado");
         navigate("/juegos");
-      } finally {
-        setLoading(false);
       }
     };
-    loadGame();
+    loadGameDetails();
   }, [gameId, navigate]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <span className="ml-4 text-lg">Cargando el juego...</span>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (game && user) {
+      const script = document.createElement("script");
+
+      // ruta dinámica
+      const basePath = `/games/${gameId}/Build`;
+      script.src = `${basePath}/${gameId}.loader.js`;
+
+      script.onload = () => {
+        // la variable createUnityInstance es global gracias al script loader.js
+        window
+          .createUnityInstance(
+            document.querySelector("#unity-canvas"),
+            {
+              // rutas dinámicas
+              dataUrl: `${basePath}/${gameId}.data`,
+              frameworkUrl: `${basePath}/${gameId}.framework.js`,
+              codeUrl: `${basePath}/${gameId}.wasm`,
+            },
+            (progress) => {
+              console.log(`Cargando juego: ${Math.round(progress * 100)}%`);
+            }
+          )
+          .then((instance) => {
+            setUnityInstance(instance);
+            setLoading(false);
+            const token = localStorage.getItem("token");
+
+            // crear el objeto con los datos
+            const authData = {
+              token: token,
+              gameId: gameId,
+            };
+
+            // enviar el objeto como un string JSON
+            instance.SendMessage(
+              "LoginManagerObject",
+              "StartGameWithData",
+              JSON.stringify(authData)
+            );
+          })
+          .catch((err) => {
+            console.error("Error al instanciar Unity:", err);
+            toast.error("No se pudo cargar el juego.");
+          });
+      };
+      document.body.appendChild(script);
+
+      return () => {
+        if (unityInstance) {
+          unityInstance.Quit();
+        }
+        if (document.body.contains(script)) {
+          document.body.removeChild(script);
+        }
+      };
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game, user]);
 
   return (
-    <div className="min-h-screen bg-linear-to-br from-primary/5 via-accent/5 to-secondary/5">
+    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5">
       <div className="bg-background border-b">
         <div className="container py-4 flex items-center justify-between">
           <Button variant="ghost" onClick={() => navigate("/juegos")}>
@@ -91,7 +121,7 @@ export default function GamePlay() {
           </div>
           <div className="flex items-center gap-2">
             <Star className="h-5 w-5 text-secondary" />
-            <span className="font-bold">{currentScore}</span>
+            <span className="font-bold">--</span>
           </div>
         </div>
       </div>
@@ -99,16 +129,20 @@ export default function GamePlay() {
       <div className="container py-8">
         <Card className="p-0 overflow-hidden shadow-playful-lg">
           <div className="aspect-video bg-muted flex items-center justify-center relative">
-            {game?.unityUrl ? (
-              <iframe
-                src={game.unityUrl}
-                className="w-full h-full absolute inset-0 border-0"
-                title={game.titulo}
-                allow="autoplay; fullscreen"
-              />
-            ) : (
-              <p>No se encontró la URL del juego.</p>
+            {loading && (
+              <div className="flex flex-col items-center gap-2">
+                <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                <span>Cargando el juego...</span>
+              </div>
             )}
+            <canvas
+              id="unity-canvas"
+              style={{
+                width: "100%",
+                height: "100%",
+                display: loading ? "none" : "block",
+              }}
+            ></canvas>
           </div>
         </Card>
       </div>
