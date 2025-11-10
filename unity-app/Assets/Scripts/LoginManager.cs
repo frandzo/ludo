@@ -1,38 +1,42 @@
+// Assets/Scripts/LoginManager.cs
+
 using UnityEngine;
-using TMPro;
 using UnityEngine.SceneManagement;
-using System.Text.RegularExpressions;
 
 public class LoginManager : MonoBehaviour
 {
-    public TMP_InputField emailInput;
-    public TMP_Text warningText;
-
-    private void Start()
+    // clase auxiliar para deserializar los datos que vienen del frontend
+    [System.Serializable]
+    private class AuthData
     {
-        if (warningText != null) warningText.text = "";
+        public string token;
+        public string gameId;
     }
 
-    public void OnLoginButton()
+    // función llamada desde JavaScript en el navegador
+    // recibe un string en formato JSON: {"token": "...", "gameId": "..."}
+    public void StartGameWithData(string jsonData)
     {
-        string email = emailInput.text.Trim();
-
-        if (!IsValidEmail(email))
+        if (string.IsNullOrEmpty(jsonData))
         {
-            if (warningText != null) warningText.text = "Ingrese un correo válido.";
-            Debug.LogWarning("Email inválido: " + email);
+            Debug.LogError("No se recibieron datos (token/gameId). El juego no puede continuar.");
             return;
         }
 
-        PlayerPrefs.SetString("userIdentifier", email); // clave general: puede ser email u otro id
-        PlayerPrefs.Save();
-        SceneManager.LoadScene("MathGameScene");
-    }
+        AuthData data = JsonUtility.FromJson<AuthData>(jsonData);
 
-    bool IsValidEmail(string email)
-    {
-        if (string.IsNullOrEmpty(email)) return false;
-        string pattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
-        return Regex.IsMatch(email, pattern);
+        if (string.IsNullOrEmpty(data.token) || string.IsNullOrEmpty(data.gameId))
+        {
+            Debug.LogError("El token o el gameId están vacíos. Revisa los datos enviados desde el frontend.");
+            return;
+        }
+        
+        // guardar ambos datos para usarlos en el juego y al final
+        PlayerPrefs.SetString("jwtToken", data.token);
+        PlayerPrefs.SetString("currentGameId", data.gameId);
+        PlayerPrefs.Save();
+        
+        Debug.Log($"Token y Game ID ({data.gameId}) recibidos y guardados. Iniciando el juego...");
+        SceneManager.LoadScene("MainMenuScene");
     }
 }

@@ -1,3 +1,5 @@
+// Assets/Scripts/ResultManager.cs
+
 using UnityEngine;
 using TMPro;
 using UnityEngine.Networking;
@@ -8,81 +10,64 @@ public class ResultManager : MonoBehaviour
 {
     public TextMeshProUGUI resultText;
     public TextMeshProUGUI statusText;
-    public string apiBaseUrl = "http://localhost:3000"; // configurar según ambiente
-    public int maxRetries = 3;
-    public float retryDelayBase = 1.0f;
+    public string apiBaseUrl = "http://localhost:3000";
 
     void Start()
     {
         int finalScore = PlayerPrefs.GetInt("finalScore", 0);
-        string userId = PlayerPrefs.GetString("userIdentifier", "guest");
         if (resultText != null) resultText.text = $"Tu puntaje: {finalScore}";
+
+        StartCoroutine(PostScore(finalScore));
+    }
+
+    IEnumerator PostScore(int score)
+    {
         if (statusText != null) statusText.text = "Enviando puntaje...";
 
-        StartCoroutine(SendScoreWithRetries(userId, finalScore));
-    }
+        string token = PlayerPrefs.GetString("jwtToken", null);
+        string gameId = PlayerPrefs.GetString("currentGameId", null); // obtener ID dinámico
 
-    IEnumerator SendScoreWithRetries(string userId, int score)
-    {
-        int attempt = 0;
-        bool success = false;
-        while (attempt < maxRetries && !success)
+        if (string.IsNullOrEmpty(token) || string.IsNullOrEmpty(gameId))
         {
-            attempt++;
-            yield return StartCoroutine(SendScore(userId, score, (ok, msg) =>
-            {
-                success = ok;
-                if (statusText != null) statusText.text = msg;
-            }));
-
-            if (!success)
-            {
-                float wait = retryDelayBase * Mathf.Pow(2, attempt - 1);
-                if (statusText != null) statusText.text = $"Reintentando en {wait} s (intento {attempt}/{maxRetries})";
-                yield return new WaitForSeconds(wait);
-            }
+            if (statusText != null) statusText.text = "Error: Faltan datos de autenticación o del juego.";
+            Debug.LogError("No se encontró el token JWT o el gameId.");
+            yield break;
         }
+        
+        string url = $"{apiBaseUrl}/api/juegos/completar";
+        
+        ScorePayload payload = new ScorePayload { juegoId = gameId, puntaje = score };
+        string jsonPayload = JsonUtility.ToJson(payload);
+        byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonPayload);
 
-        if (!success && statusText != null)
-            statusText.text = "No se pudo enviar el puntaje. Se guardó localmente.";
-    }
-
-    IEnumerator SendScore(string userId, int score, System.Action<bool,string> callback)
-    {
-        string url = apiBaseUrl + "/api/juegos_usuarios";
-        ScorePayload payload = new ScorePayload { email = userId, score = score };
-        string json = JsonUtility.ToJson(payload);
-
-        using (UnityWebRequest req = new UnityWebRequest(url, "POST"))
+        using (UnityWebRequest request = new UnityWebRequest(url, "POST"))
         {
-            byte[] body = Encoding.UTF8.GetBytes(json);
-            req.uploadHandler = new UploadHandlerRaw(body);
-            req.downloadHandler = new DownloadHandlerBuffer();
-            req.SetRequestHeader("Content-Type", "application/json");
+            request.uploadHandler = new UploadHandlerRaw(bodyRaw);
+            request.downloadHandler = new DownloadHandlerBuffer();
+            request.SetRequestHeader("Content-Type", "application/json");
+            request.SetRequestHeader("Authorization", $"Bearer {token}");
 
-#if UNITY_2020_1_OR_NEWER
-            yield return req.SendWebRequest();
-            if (req.result == UnityWebRequest.Result.ConnectionError || req.result == UnityWebRequest.Result.ProtocolError)
-#else
-            yield return req.SendWebRequest();
-            if (req.isNetworkError || req.isHttpError)
-#endif
+            yield return request.SendWebRequest();
+
+            if (request.result != UnityWebRequest.Result.Success)
             {
-                Debug.LogError($"Error al enviar: {req.error} | Code: {req.responseCode}");
-                callback(false, $"Error: {req.error}");
+                Debug.LogError($"Error al enviar puntaje: {request.error} | {request.downloadHandler.text}");
+                if (statusText != null) statusText.text = "Error al guardar el puntaje.";
             }
             else
             {
-                Debug.Log("Puntaje enviado OK: " + req.downloadHandler.text);
-                callback(true, "Puntaje enviado correctamente ✅");
+                Debug.Log("Puntaje enviado con éxito!");
+                if (statusText != null) statusText.text = "¡Puntaje guardado!";
+                // llamar a la función de JS para notificar al frontend que puede continuar
+                Application.ExternalCall("handleGameCompleted", score);
             }
         }
     }
 
     [System.Serializable]
-    public class ScorePayload
+    private class ScorePayload
     {
-        public string email;
-        public int score;
+        public string juegoId;
+        public int puntaje;
     }
 }
