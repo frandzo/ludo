@@ -17,7 +17,20 @@ public class ResultManager : MonoBehaviour
         int finalScore = PlayerPrefs.GetInt("finalScore", 0);
         if (resultText != null) resultText.text = $"Tu puntaje: {finalScore}";
 
-        StartCoroutine(PostScore(finalScore));
+        string token = PlayerPrefs.GetString("jwtToken", null);
+
+        if (!string.IsNullOrEmpty(token))
+        {
+            // si hay token, enviar puntaje al backend
+            StartCoroutine(PostScore(finalScore));
+        }
+        else
+        {
+            // si no hay token, notificar directamente al frontend
+            if (statusText != null) statusText.text = "¡Partida finalizada!";
+            Debug.Log("Jugador visitante. Notificando al frontend sin guardar puntaje.");
+            Application.ExternalCall("handleGameCompleted", finalScore);
+        }
     }
 
     IEnumerator PostScore(int score)
