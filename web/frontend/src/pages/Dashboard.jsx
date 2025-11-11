@@ -4,28 +4,57 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Trophy, Target, Clock, TrendingUp, Award, Star } from "lucide-react";
+import {
+  Trophy,
+  Target,
+  Clock,
+  TrendingUp,
+  Award,
+  Star,
+  Loader2,
+} from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/context/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import api from "@/utils/api";
 
 export default function Dashboard() {
   const { user } = useAuth();
+
+  const { data: progressHistory, isLoading: isLoadingHistory } = useQuery({
+    queryKey: ["progress", user?.id],
+    queryFn: () =>
+      api.get(`/api/usuarios/${user.id}/progreso`).then((res) => res.data),
+    enabled: !!user, // solo ejecutar la consulta si el usuario está cargado
+  });
+
+  // calcular estadísticas basadas en los datos (datos reales)
+  const totalPoints =
+    progressHistory?.reduce((sum, item) => sum + item.puntaje, 0) || 0;
+  const gamesCompleted = progressHistory?.length || 0;
+  const totalTimeSeconds =
+    progressHistory?.reduce(
+      (sum, item) => sum + item.tiempo_jugado_segundos,
+      0
+    ) || 0;
+  const totalTimeHours = (totalTimeSeconds / 3600).toFixed(1);
+
   const stats = [
     {
       label: "Juegos completados",
-      value: "12",
+      value: gamesCompleted,
       icon: Trophy,
       color: "text-primary",
     },
     {
       label: "Puntos totales",
-      value: "2,450",
+      value: totalPoints.toLocaleString(),
       icon: Star,
       color: "text-secondary",
     },
     {
       label: "Tiempo jugado",
-      value: "8.5h",
+      value: `${totalTimeHours}h`,
       icon: Clock,
       color: "text-accent",
     },
@@ -34,41 +63,22 @@ export default function Dashboard() {
       value: "15",
       icon: TrendingUp,
       color: "text-primary",
-    },
+    }, // TODO: hacer funcional el cálculo de "Nivel actual" (no hace mucha falta por ahora)
   ];
 
-  const recentGames = [
-    {
-      name: "Matemáticas Mágicas",
-      score: 950,
-      date: "Hoy",
-      category: "Matemáticas",
-    },
-    {
-      name: "Laboratorio Virtual",
-      score: 880,
-      date: "Ayer",
-      category: "Ciencias",
-    },
-    {
-      name: "Aventura Lingüística",
-      score: 920,
-      date: "Hace 2 días",
-      category: "Lenguaje",
-    },
-  ];
+  const recentGames = progressHistory?.slice(0, 3) || [];
 
   const achievements = [
     {
       name: "Primera Victoria",
       description: "Completa tu primer juego",
-      unlocked: true,
+      unlocked: gamesCompleted > 0,
     },
     {
       name: "Estudiante Dedicado",
       description: "Juega 5 días seguidos",
       unlocked: true,
-    },
+    }, // Lógica a implementar
     {
       name: "Maestro Matemático",
       description: "Completa 10 juegos de matemáticas",
@@ -95,7 +105,7 @@ export default function Dashboard() {
               !
             </h1>
             <p className="text-muted-foreground">
-              Continúa tu progreso y desbloquea nuevos logros
+              Continuá tu progreso y desbloquea nuevos logros
             </p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
@@ -112,7 +122,9 @@ export default function Dashboard() {
                     <stat.icon className="h-6 w-6" />
                   </div>
                   <div>
-                    <div className="text-2xl font-bold">{stat.value}</div>
+                    <div className="text-2xl font-bold">
+                      {isLoadingHistory ? "..." : stat.value}
+                    </div>
                     <div className="text-sm text-muted-foreground">
                       {stat.label}
                     </div>
@@ -146,29 +158,37 @@ export default function Dashboard() {
                 style={{ animationDelay: "0.3s" }}
               >
                 <h3 className="text-xl font-bold mb-4">Juegos recientes</h3>
-                <div className="space-y-4">
-                  {recentGames.map((game, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-4 rounded-xl bg-muted/50 hover:bg-muted/70 transition-colors"
-                    >
-                      <div className="flex-1">
-                        <div className="font-semibold">{game.name}</div>
-                        <div className="text-sm text-muted-foreground">
-                          {game.category} • {game.date}
+                {isLoadingHistory ? (
+                  <div className="flex justify-center items-center p-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                    <span className="ml-2">Cargando historial...</span>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {recentGames.map((game) => (
+                      <div
+                        key={game.id}
+                        className="flex items-center justify-between p-4 rounded-xl bg-muted/50 hover:bg-muted/70 transition-colors"
+                      >
+                        <div className="flex-1">
+                          <div className="font-semibold">{game.titulo}</div>
+                          <div className="text-sm text-muted-foreground">
+                            {game.categoria} •{" "}
+                            {new Date(game.fecha_juego).toLocaleDateString()}
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-xl font-bold text-primary">
+                            {game.puntaje}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            puntos
+                          </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <div className="text-xl font-bold text-primary">
-                          {game.score}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          puntos
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
                 <Button variant="outline" className="w-full mt-4">
                   Ver historial completo
                 </Button>
