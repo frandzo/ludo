@@ -17,26 +17,37 @@ public class LoginManager : MonoBehaviour
     // recibe un string en formato JSON: {"token": "...", "gameId": "..."}
     public void StartGameWithData(string jsonData)
     {
-        if (string.IsNullOrEmpty(jsonData))
+        // limpiar datos de sesión anteriores por seguridad
+        PlayerPrefs.DeleteKey("jwtToken");
+        PlayerPrefs.DeleteKey("currentGameId");
+
+        if (!string.IsNullOrEmpty(jsonData))
         {
-            Debug.LogError("No se recibieron datos (token/gameId). El juego no puede continuar.");
-            return;
+            try
+            {
+                AuthData data = JsonUtility.FromJson<AuthData>(jsonData);
+                if (!string.IsNullOrEmpty(data.token) && !string.IsNullOrEmpty(data.gameId))
+                {
+                    PlayerPrefs.SetString("jwtToken", data.token);
+                    PlayerPrefs.SetString("currentGameId", data.gameId);
+                    PlayerPrefs.Save();
+                    Debug.Log("Datos de sesión recibidos y guardados. Jugador autenticado.");
+                }
+                else
+                {
+                    Debug.Log("Datos recibidos pero incompletos. Jugando como visitante.");
+                }
+            }
+            catch (System.Exception e)
+            {
+                Debug.LogWarning($"Error al procesar JSON: {e.Message}. Jugando como visitante.");
+            }
         }
-
-        AuthData data = JsonUtility.FromJson<AuthData>(jsonData);
-
-        if (string.IsNullOrEmpty(data.token) || string.IsNullOrEmpty(data.gameId))
+        else
         {
-            Debug.LogError("El token o el gameId están vacíos. Revisa los datos enviados desde el frontend.");
-            return;
+            Debug.Log("No se recibieron datos de sesión. Jugando como visitante.");
         }
         
-        // guardar ambos datos para usarlos en el juego y al final
-        PlayerPrefs.SetString("jwtToken", data.token);
-        PlayerPrefs.SetString("currentGameId", data.gameId);
-        PlayerPrefs.Save();
-        
-        Debug.Log($"Token y Game ID ({data.gameId}) recibidos y guardados. Iniciando el juego...");
         SceneManager.LoadScene("MainMenuScene");
     }
 }
