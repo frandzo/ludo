@@ -1,3 +1,5 @@
+// api/src/database/connection.js
+
 import mysql from "mysql2/promise";
 
 let pool;
@@ -10,7 +12,7 @@ export async function getConnection() {
       password: process.env.DB_PASS,
       database: process.env.DB_NAME,
       waitForConnections: true,
-      connectionLimit: 10
+      connectionLimit: 10,
     });
   }
   return pool;

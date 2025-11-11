@@ -70,7 +70,9 @@ export async function login({ email, password }) {
     console.log(
       `[LOGIN-SERVICE] Usuario no encontrado en la base de datos para el email: ${email}`
     );
-    throw new Error("Usuario o contraseña incorrectos, o la cuenta está inactiva.");
+    throw new Error(
+      "Usuario o contraseña incorrectos, o la cuenta está inactiva."
+    );
   }
 
   console.log(`[LOGIN-SERVICE] Usuario encontrado:`, user);
