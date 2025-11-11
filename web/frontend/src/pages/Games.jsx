@@ -1,55 +1,35 @@
 // web/frontend/src/pages/Games.jsx
 
+import { useQuery } from "@tanstack/react-query";
+import api from "@/utils/api";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import GameCard from "@/components/GameCard";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, Filter } from "lucide-react";
+
 const gameMath = "/game-math.png";
 const gameScience = "/game-science.png";
 const gameLanguage = "/game-language.png";
 
+const fetchGames = async () => {
+  const { data } = await api.get("/api/juegos");
+  return data;
+};
+
 export default function Games() {
-  const allGames = [
-    {
-      id: "1",
-      title: "Matemáticas Mágicas",
-      category: "Matemáticas",
-      description: "Resuelve ecuaciones y acertijos en un mundo mágico.",
-      image: gameMath,
-      difficulty: 3,
-      duration: "15-20 min",
-    },
-    {
-      id: "2",
-      title: "Laboratorio Virtual",
-      category: "Ciencias",
-      description: "Experimenta con reacciones químicas de forma segura.",
-      image: gameScience,
-      difficulty: 4,
-      duration: "20-30 min",
-    },
-    {
-      id: "3",
-      title: "Aventura Lingüística",
-      category: "Lenguaje",
-      description: "Mejora tu vocabulario explorando mundos fantásticos.",
-      image: gameLanguage,
-      difficulty: 2,
-      duration: "10-15 min",
-    },
-    {
-      id: "4",
-      title: "Historia Interactiva",
-      category: "Historia",
-      description:
-        "Viaja en el tiempo y aprende sobre civilizaciones antiguas.",
-      image: gameMath,
-      difficulty: 3,
-      duration: "25-30 min",
-    },
-  ];
+  const {
+    data: allGames,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["games"],
+    queryFn: fetchGames,
+  });
+
+  if (isLoading) return <div>Cargando juegos...</div>;
+  if (error) return <div>Error al cargar los juegos.</div>;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -92,7 +72,15 @@ export default function Games() {
                 className="animate-slide-up"
                 style={{ animationDelay: `${index * 0.05}s` }}
               >
-                <GameCard {...game} />
+                <GameCard
+                  id={game.id}
+                  title={game.titulo}
+                  category={game.categoria}
+                  description={game.descripcion}
+                  image={game.imagenUrl} // campo de la base de datos
+                  //difficulty={3} // TODO: añadir difficulty y duration a tu tabla juegos (no hace mucha falta por ahora)
+                  duration={"15-20 min"}
+                />
               </div>
             ))}
           </div>
