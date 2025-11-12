@@ -4,27 +4,44 @@ import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Star, Loader2 } from "lucide-react";
+import { ArrowLeft, Star, Loader2, PartyPopper } from "lucide-react";
 import { toast } from "sonner";
 import api from "@/utils/api";
 import { useAuth } from "@/context/AuthContext";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function GamePlay() {
   const { gameId } = useParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isAuthenticated } = useAuth(); // obtener el estado de autenticación
   const [game, setGame] = useState(null);
   const [loading, setLoading] = useState(true);
   const [unityInstance, setUnityInstance] = useState(null);
+  const [visitorScore, setVisitorScore] = useState(0); // estado para el puntaje del visitante
+  const [showVisitorModal, setShowVisitorModal] = useState(false); // estado para el modal
 
   const handleGameCompleted = useCallback(
     (finalScore) => {
-      toast.success("¡Juego completado!", {
-        description: `Obtuviste ${finalScore} puntos. Tu progreso ha sido guardado.`,
-      });
-      setTimeout(() => navigate("/dashboard"), 1500);
+      if (isAuthenticated) {
+        toast.success("¡Juego completado!", {
+          description: `Obtuviste ${finalScore} puntos. Tu progreso ha sido guardado.`,
+        });
+        setTimeout(() => navigate("/dashboard"), 1500);
+      } else {
+        // si es visitante, guardar el puntaje y mostrar el modal
+        setVisitorScore(finalScore);
+        setShowVisitorModal(true);
+      }
     },
-    [navigate]
+    [isAuthenticated, navigate]
   );
 
   useEffect(() => {
@@ -48,7 +65,7 @@ export default function GamePlay() {
   }, [gameId, navigate]);
 
   useEffect(() => {
-    if (game && user) {
+    if (game) {
       const script = document.createElement("script");
 
       // ruta dinámica
@@ -76,12 +93,13 @@ export default function GamePlay() {
             const token = localStorage.getItem("token");
 
             // crear el objeto con los datos
-            const authData = {
-              token: token,
-              gameId: gameId,
-            };
+            let authData = {};
+            if (isAuthenticated) {
+              const token = localStorage.getItem("token");
+              authData = { token, gameId };
+            }
 
-            // enviar el objeto como un string JSON
+            // enviar el objeto como un string JSON (pueden estar vacíos si es visitante)
             instance.SendMessage(
               "LoginManagerObject",
               "StartGameWithData",
@@ -125,6 +143,39 @@ export default function GamePlay() {
           </div>
         </div>
       </div>
+
+      {/* Modal para visitantes */}
+      <AlertDialog open={showVisitorModal} onOpenChange={setShowVisitorModal}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-center">
+              <PartyPopper className="h-12 w-12 mx-auto text-primary mb-4" />
+              ¡Felicidades, has completado el juego!
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-center text-lg">
+              Tu puntaje fue de:{" "}
+              <span className="font-bold text-xl text-primary">
+                {visitorScore}
+              </span>
+              <br />
+              <br />
+              Para guardar tu progreso y competir en el ranking, necesitas una
+              cuenta.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="sm:justify-center">
+            <Button
+              variant="outline"
+              onClick={() => setShowVisitorModal(false)}
+            >
+              Volver a los juegos
+            </Button>
+            <Button variant="hero" onClick={() => navigate("/login")}>
+              Iniciar sesión / Registrarse
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       <div className="container py-8">
         <Card className="p-0 overflow-hidden shadow-playful-lg">
