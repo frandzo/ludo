@@ -47,7 +47,7 @@ public class LoginManager : MonoBehaviour
         {
             Debug.Log("No se recibieron datos de sesión. Jugando como visitante.");
         }
-        
+
         SceneManager.LoadScene("MainMenuScene");
     }
 }
