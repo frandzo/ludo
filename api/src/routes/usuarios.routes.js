@@ -2,8 +2,11 @@
 
 import express from "express";
 import * as usuariosController from "../controllers/usuariosController.js";
+import { verificarToken } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
+
+router.use(verificarToken);
 
 // rutas para gestionar usuarios (protegidas)
 router.get("/", usuariosController.getAllUsuarios);
