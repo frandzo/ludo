@@ -56,14 +56,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route
-              path="/jugar/:gameId"
-              element={
-                <ProtectedRoute>
-                  <GamePlay />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/jugar/:gameId" element={<GamePlay />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
