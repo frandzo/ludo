@@ -2,9 +2,10 @@
 
 import express from "express";
 import * as rankingController from "../controllers/rankingController.js";
+import { verificarToken } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
-router.get("/global", rankingController.getGlobalRanking);
+router.get("/global", verificarToken, rankingController.getGlobalRanking);
 
 export default router;
