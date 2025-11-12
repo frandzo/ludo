@@ -46,9 +46,9 @@ public class ResultManager : MonoBehaviour
             Debug.LogError("No se encontró el token JWT o el gameId.");
             yield break;
         }
-        
+
         string url = $"{apiBaseUrl}/api/juegos/completar";
-        
+
         ScorePayload payload = new ScorePayload { juegoId = gameId, puntaje = score };
         string jsonPayload = JsonUtility.ToJson(payload);
         byte[] bodyRaw = Encoding.UTF8.GetBytes(jsonPayload);
