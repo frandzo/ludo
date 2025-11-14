@@ -1,6 +1,6 @@
 // web/frontend/src/pages/GamePlay.jsx
 
-import React, { useEffect, useState, useCallback } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -10,7 +10,6 @@ import api from "@/utils/api";
 import { useAuth } from "@/context/AuthContext";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -21,12 +20,15 @@ import {
 export default function GamePlay() {
   const { gameId } = useParams();
   const navigate = useNavigate();
-  const { user, isAuthenticated } = useAuth(); // obtener el estado de autenticación
+  const { isAuthenticated } = useAuth();
   const [game, setGame] = useState(null);
   const [loading, setLoading] = useState(true);
   const [unityInstance, setUnityInstance] = useState(null);
-  const [visitorScore, setVisitorScore] = useState(0); // estado para el puntaje del visitante
-  const [showVisitorModal, setShowVisitorModal] = useState(false); // estado para el modal
+  const [visitorScore, setVisitorScore] = useState(0);
+  const [showVisitorModal, setShowVisitorModal] = useState(false);
+
+  // Usamos una ref para controlar que el efecto de carga solo se ejecute una vez
+  const effectRan = useRef(false);
 
   const handleGameCompleted = useCallback(
     (finalScore) => {
@@ -36,7 +38,6 @@ export default function GamePlay() {
         });
         setTimeout(() => navigate("/dashboard"), 1500);
       } else {
-        // si es visitante, guardar el puntaje y mostrar el modal
         setVisitorScore(finalScore);
         setShowVisitorModal(true);
       }
@@ -65,20 +66,17 @@ export default function GamePlay() {
   }, [gameId, navigate]);
 
   useEffect(() => {
-    if (game) {
+    // Solo proceder si tenemos los datos del juego y el efecto no ha corrido antes
+    if (game && !effectRan.current) {
       const script = document.createElement("script");
-
-      // ruta dinámica
       const basePath = `/games/${gameId}/Build`;
       script.src = `${basePath}/${gameId}.loader.js`;
 
       script.onload = () => {
-        // la variable createUnityInstance es global gracias al script loader.js
         window
           .createUnityInstance(
             document.querySelector("#unity-canvas"),
             {
-              // rutas dinámicas
               dataUrl: `${basePath}/${gameId}.data`,
               frameworkUrl: `${basePath}/${gameId}.framework.js`,
               codeUrl: `${basePath}/${gameId}.wasm`,
@@ -90,16 +88,13 @@ export default function GamePlay() {
           .then((instance) => {
             setUnityInstance(instance);
             setLoading(false);
-            const token = localStorage.getItem("token");
-
-            // crear el objeto con los datos
+            
             let authData = {};
             if (isAuthenticated) {
               const token = localStorage.getItem("token");
               authData = { token, gameId };
             }
 
-            // enviar el objeto como un string JSON (pueden estar vacíos si es visitante)
             instance.SendMessage(
               "LoginManagerObject",
               "StartGameWithData",
@@ -113,6 +108,9 @@ export default function GamePlay() {
       };
       document.body.appendChild(script);
 
+      // Marcamos que el efecto ya se ejecutó
+      effectRan.current = true;
+
       return () => {
         if (unityInstance) {
           unityInstance.Quit();
@@ -122,29 +120,51 @@ export default function GamePlay() {
         }
       };
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [game, user]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [game, isAuthenticated]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5">
-      <div className="bg-background border-b">
-        <div className="container py-4 flex items-center justify-between">
-          <Button variant="ghost" onClick={() => navigate("/juegos")}>
-            <ArrowLeft className="mr-2 h-4 w-4" />
-            Volver a juegos
-          </Button>
-          <div className="text-center">
-            <h1 className="text-xl font-bold">{game?.titulo}</h1>
-            <p className="text-sm text-muted-foreground">{game?.categoria}</p>
+    <>
+      <div className="min-h-screen bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/5">
+        <div className="bg-background border-b">
+          <div className="container py-4 flex items-center justify-between">
+            <Button variant="ghost" onClick={() => navigate("/juegos")}>
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Volver a juegos
+            </Button>
+            <div className="text-center">
+              <h1 className="text-xl font-bold">{game?.titulo}</h1>
+              <p className="text-sm text-muted-foreground">{game?.categoria}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Star className="h-5 w-5 text-secondary" />
+              <span className="font-bold">--</span>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Star className="h-5 w-5 text-secondary" />
-            <span className="font-bold">--</span>
-          </div>
+        </div>
+
+        <div className="container py-8">
+          <Card className="p-0 overflow-hidden shadow-playful-lg">
+            <div className="aspect-video bg-muted flex items-center justify-center relative">
+              {loading && (
+                <div className="flex flex-col items-center gap-2">
+                  <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                  <span>Cargando el juego...</span>
+                </div>
+              )}
+              <canvas
+                id="unity-canvas"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  display: loading ? "none" : "block",
+                }}
+              ></canvas>
+            </div>
+          </Card>
         </div>
       </div>
 
-      {/* Modal para visitantes */}
       <AlertDialog open={showVisitorModal} onOpenChange={setShowVisitorModal}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -153,50 +173,18 @@ export default function GamePlay() {
               ¡Felicidades, has completado el juego!
             </AlertDialogTitle>
             <AlertDialogDescription className="text-center text-lg">
-              Tu puntaje fue de:{" "}
-              <span className="font-bold text-xl text-primary">
-                {visitorScore}
-              </span>
+              Tu puntaje fue de: <span className="font-bold text-xl text-primary">{visitorScore}</span>
               <br />
               <br />
-              Para guardar tu progreso y competir en el ranking, necesitas una
-              cuenta.
+              Para guardar tu progreso y competir en el ranking, necesitas una cuenta.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="sm:justify-center">
-            <Button
-              variant="outline"
-              onClick={() => setShowVisitorModal(false)}
-            >
-              Volver a los juegos
-            </Button>
-            <Button variant="hero" onClick={() => navigate("/login")}>
-              Iniciar sesión / Registrarse
-            </Button>
+            <Button variant="outline" onClick={() => navigate("/juegos")}>Volver a los juegos</Button>
+            <Button variant="hero" onClick={() => navigate("/login")}>Iniciar sesión / Registrarse</Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-      <div className="container py-8">
-        <Card className="p-0 overflow-hidden shadow-playful-lg">
-          <div className="aspect-video bg-muted flex items-center justify-center relative">
-            {loading && (
-              <div className="flex flex-col items-center gap-2">
-                <Loader2 className="h-12 w-12 animate-spin text-primary" />
-                <span>Cargando el juego...</span>
-              </div>
-            )}
-            <canvas
-              id="unity-canvas"
-              style={{
-                width: "100%",
-                height: "100%",
-                display: loading ? "none" : "block",
-              }}
-            ></canvas>
-          </div>
-        </Card>
-      </div>
-    </div>
+    </>
   );
 }
